@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql://avvhh_user:avvhh_password@localhost/avvhh"
+    DATABASE_URL: str = "postgresql://username:password@localhost/dbname"
     SECRET_KEY: str = "your_secret_key"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_DAYS: int = 30
