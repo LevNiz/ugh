@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, File, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
 import random
 import string
 import time
+import os
+import shutil
 
 from app import schemas, crud, deps
 from app.config import settings
@@ -12,6 +14,10 @@ from app.sms_module import send_sms
 
 app = FastAPI()
 app.middleware("http")(auth_middleware)
+
+UPLOAD_DIR = "uploads/"
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.on_event("startup")
 async def startup():
@@ -64,12 +70,31 @@ async def read_users_me(current_user: schemas.User = Depends(deps.get_current_us
     return current_user
 
 @app.put("/update/")
-async def update_user(phone: str, user_update: schemas.UserUpdate, db = Depends(deps.get_db)):
+async def update_user(
+    phone: str,
+    user_update: schemas.UserUpdate,
+    db = Depends(deps.get_db),
+    avatar: UploadFile = File(None),
+    license: UploadFile = File(None)
+):
     db_user = await crud.get_user_by_phone(db, phone=phone)
     if not db_user:
         raise HTTPException(status_code=400, detail="User not found")
+
+    if avatar:
+        avatar_location = os.path.join(UPLOAD_DIR, avatar.filename)
+        with open(avatar_location, "wb") as buffer:
+            shutil.copyfileobj(avatar.file, buffer)
+        user_update.avatar = avatar_location
+    
+    if license:
+        license_location = os.path.join(UPLOAD_DIR, license.filename)
+        with open(license_location, "wb") as buffer:
+            shutil.copyfileobj(license.file, buffer)
+        user_update.licenses = license_location  
+
     updated_user = await crud.update_user(db, db_user['id'], user_update)
-    return {"message": "User updated successfully"}
+    return {"message": "User updated successfully", "user": dict(updated_user)}
 
 @app.post("/reset/")
 async def reset_password(phone: str, db = Depends(deps.get_db)):

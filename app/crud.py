@@ -23,9 +23,10 @@ async def update_user(db, user_id: int, user_update: schemas.UserUpdate):
     set_clause = ", ".join([f"{key} = ${idx}" for idx, key in enumerate(user_update.dict().keys(), start=2)])
     query = f"UPDATE users SET {set_clause}, updated = $1 WHERE id = $2 RETURNING *"
     values = [user_update.dict().get(key) for key in user_update.dict().keys()]
-    values.insert(0, int(time.time()))  # Add updated timestamp
+    values.insert(0, int(time.time()))
     updated_user = await db.fetchrow(query, *values, user_id)
     return updated_user
+
 
 async def authenticate_user(db, phone: str, password: str):
     user = await get_user_by_phone(db, phone)

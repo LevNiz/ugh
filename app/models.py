@@ -26,7 +26,7 @@ class User(Base):
     prop_state = Column(String(100))
     avatar = Column(String(100), default='noUserImage.svg')
     licenses = Column(String(100), default='noLicenseImage.svg')
-    video = Column(String(100), default='noVideo.svg')
+    video = Column(String(100))
     about = Column(String(500))
     activation_code = Column(String(10), nullable=True)
     role = Column(String(10), default='user')
