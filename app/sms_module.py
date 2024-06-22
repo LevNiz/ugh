@@ -7,7 +7,7 @@ API_TOKEN = "8AF6EC7A-53C3-80C0-E90B-CA7787E31DC8"
 MAX_TRY = 3
 API_TIMEOUT = 1  # seconds
 
-def send_sms(phone: Union[str, List[str]], mess: Union[str, List[str]]):
+async def send_sms(phone: Union[str, List[str]], mess: Union[str, List[str]]):
     print("Sending SMS")
     result = {"status": None, "data": {}, "message": None}
     try:
