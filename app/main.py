@@ -34,7 +34,7 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
-def generate_activation_code(length=6):
+def generate_activation_code(length=4):
     return ''.join(random.choices(string.digits, k=length))
 
 @app.post("/register/")
