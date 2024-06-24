@@ -51,7 +51,7 @@ async def login_for_access_token(data: schemas.TokenRequest, db = Depends(deps.g
     access_token = deps.create_access_token(data={"sub": user['phone']})
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/users/me/")
+@router.get("/me/")
 async def read_users_me(current_user: schemas.User = Depends(deps.get_current_user)):
     return current_user
 
@@ -141,7 +141,7 @@ async def delete_user(data: schemas.UserBase, db = Depends(deps.get_db)):
     await db.execute("DELETE FROM users WHERE phone = $1", data.phone)
     return {"message": "User deleted successfully"}
 
-@router.get("/users/")
+@router.get("/list/")
 async def get_users(skip: int = 0, limit: int = 10, db = Depends(deps.get_db)):
     users = await db.fetch("SELECT * FROM users OFFSET $1 LIMIT $2", skip, limit)
     return users
