@@ -14,6 +14,11 @@ class Database:
     async def disconnect(self):
         await self.pool.close()
 
+    async def drop_tables(self):
+        async with self.pool.acquire() as conn:
+            await conn.execute("DROP TABLE IF EXISTS users CASCADE")
+            await conn.execute("DROP TABLE IF EXISTS properties CASCADE")
+
     async def init_db(self):
         async with self.pool.acquire() as conn:
             await conn.execute('''
@@ -26,8 +31,6 @@ class Database:
                 city VARCHAR(100),
                 phone VARCHAR(15) UNIQUE,
                 email VARCHAR(100) UNIQUE,
-                pass_hash VARCHAR(100),
-                temp_pass_hash VARCHAR(100),
                 user_type VARCHAR(100),
                 whatsapp VARCHAR(50),
                 telegram VARCHAR(50),
@@ -42,8 +45,63 @@ class Database:
                 video VARCHAR(100) DEFAULT 'noVideo.svg',
                 about VARCHAR(500),
                 activation_code VARCHAR(10),
-                role VARCHAR(10) DEFAULT 'user',
+                role VARCHAR(15),
                 updated BIGINT
             )''')
+
+            await conn.execute('''
+                CREATE TABLE IF NOT EXISTS properties (
+                    id SERIAL PRIMARY KEY,
+                    realtor_id INT REFERENCES users(id),
+                    deal_format VARCHAR(100),
+                    type VARCHAR(100),
+                    subtype VARCHAR(100),
+                    condition VARCHAR(100),
+                    entry_year INT,
+                    entry_quarter INT,
+                    purpose VARCHAR(100),
+                    location VARCHAR(255),
+                    price DECIMAL,
+                    currency VARCHAR(10),
+                    title VARCHAR(255),
+                    description TEXT,
+                    images TEXT[],
+                    floor INT,
+                    total_area DECIMAL,
+                    living_area DECIMAL,
+                    ceiling_height DECIMAL,
+                    rooms INT,
+                    bedrooms INT,
+                    bathrooms INT,
+                    features TEXT[],
+                    equipment TEXT[], 
+                    layout VARCHAR(255), 
+                    building_floors INT,
+                    building_living_area DECIMAL,
+                    apartments INT,
+                    lifts_per_entrance INT,
+                    building_features TEXT[],
+                    building_name VARCHAR(255),
+                    developer VARCHAR(255),
+                    materials VARCHAR(255),
+                    building_layout VARCHAR(255),
+                    territory_area DECIMAL,
+                    territory_features TEXT[],
+                    territory_layout VARCHAR(255),
+                    nearby_places TEXT[], 
+                    views TEXT[],
+                    video_title VARCHAR(255),
+                    video_url VARCHAR(255),
+                    services TEXT[],
+                    commission_amount DECIMAL,
+                    commission_type VARCHAR(100), 
+                    documents TEXT[], 
+                    document_file1 VARCHAR(255),
+                    document_file2 VARCHAR(255),
+                    document_file3 VARCHAR(255),                                           
+                    status VARCHAR(50) DEFAULT 'available',
+                    created_at INT
+                );                                                              
+            ''')
 
 database = Database()

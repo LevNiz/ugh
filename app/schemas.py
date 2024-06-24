@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+from datetime import datetime
 
 class Token(BaseModel):
     access_token: str
@@ -49,8 +50,6 @@ class User(BaseModel):
     city: Optional[str]
     phone: str
     email: Optional[str]
-    pass_hash: Optional[str]
-    temp_pass_hash: Optional[str]
     user_type: Optional[str]
     whatsapp: Optional[str]
     telegram: Optional[str]
@@ -75,3 +74,64 @@ class UserActivate(BaseModel):
 class TokenRequest(BaseModel):
     phone: str
     activation_code: str
+
+
+class PropertyBase(BaseModel):
+    deal_format: str
+    type: str
+    subtype: str
+    condition: str
+    entry_year: int
+    entry_quarter: int
+    purpose: str
+    location: str
+    price: float
+    currency: str
+    title: str
+    description: str
+    images: Optional[List[str]] = []
+    floor: Optional[int]
+    total_area: Optional[float]
+    living_area: Optional[float]
+    ceiling_height: Optional[float]
+    rooms: Optional[int]
+    bedrooms: Optional[int]
+    bathrooms: Optional[int]
+    features: Optional[List[str]]
+    equipment: Optional[List[str]]
+    layout: Optional[str]
+    building_floors: Optional[int]
+    building_living_area: Optional[float]
+    apartments: Optional[int]
+    lifts_per_entrance: Optional[int]
+    building_features: Optional[List[str]]
+    building_name: Optional[str]
+    developer: Optional[str]
+    materials: Optional[str]
+    building_layout: Optional[str]
+    territory_area: Optional[float]
+    territory_features: Optional[List[str]]
+    territory_layout: Optional[str]
+    nearby_places: Optional[List[str]]
+    views: Optional[List[str]]
+    video_title: Optional[str]
+    video_url: Optional[str]
+    services: Optional[List[str]]
+    commission_amount: Optional[float]
+    commission_type: Optional[str]
+    documents: Optional[List[str]]
+    document_file1: Optional[str]
+    document_file2: Optional[str]
+    document_file3: Optional[str]
+    status: Optional[str]
+
+class PropertyCreate(PropertyBase):
+    pass
+
+class Property(PropertyBase):
+    id: int
+    realtor_id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True

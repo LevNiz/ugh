@@ -75,4 +75,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db = Depends(get
     user = await crud.get_user_by_phone(db, phone=phone)
     if user is None:
         raise credentials_exception
-    return user        
+    
+    
+    return dict(user)
