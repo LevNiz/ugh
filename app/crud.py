@@ -49,3 +49,28 @@ async def get_properties_by_user(db, user_id: int) -> List[schemas.Property]:
     query = "SELECT * FROM properties WHERE realtor_id = $1"
     rows = await db.fetch(query, user_id)
     return [dict(row) for row in rows]
+
+
+async def create_request(db, request_data: schemas.RequestCreate, user_id: int):
+    query = """
+    INSERT INTO requests (
+        user_id, city, district, deal_format, type, subtype, condition,
+        construction_year, construction_quarter, total_rooms, total_area_min, total_area_max,
+        budget_min, budget_max, currency, purchase_purpose, urgency, purchase_method,
+        mortgage_approved, wishes
+    ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
+    ) RETURNING *
+    """
+    values = (
+        user_id, request_data.city, request_data.district, request_data.deal_format, request_data.type,
+        request_data.subtype, request_data.condition, request_data.construction_year, request_data.construction_quarter,
+        request_data.total_rooms, request_data.total_area_min, request_data.total_area_max, request_data.budget_min,
+        request_data.budget_max, request_data.currency, request_data.purchase_purpose, request_data.urgency,
+        request_data.purchase_method, request_data.mortgage_approved, request_data.wishes
+    )
+    return await db.fetchrow(query, *values)
+
+async def get_requests_by_user(db, user_id: int):
+    query = "SELECT * FROM requests WHERE user_id = $1"
+    return await db.fetch(query, user_id)

@@ -10,7 +10,7 @@ def test_register_user():
     payload = {
         "phone": f"{phone}",
         "name": "Иван",
-        "role": "realtor"
+        "role": "user"
     }
     response = requests.post(url, json=payload)
     if response.status_code == 200:
@@ -123,13 +123,6 @@ def test_create_property(access_token):
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
-    # files = {
-    #     "layout": ("test_layout.jpg", open("test_layout.jpg", "rb"), "image/jpeg"),
-    #     "building_layout": ("test_building_layout.jpg", open("test_building_layout.jpg", "rb"), "image/jpeg"),
-    #     "territory_layout": ("test_territory_layout.jpg", open("test_territory_layout.jpg", "rb"), "image/jpeg"),
-    #     "document_file1": ("doc1.pdf", open("doc1.pdf", "rb"), "application/pdf"),
-    #     "document_file2": ("doc2.pdf", open("doc2.pdf", "rb"), "application/pdf"),
-    # }
 
     multipart_data = MultipartEncoder(
         fields={
@@ -189,8 +182,52 @@ def test_create_property(access_token):
         print("Property creation failed:", response.status_code, response.text)
 
 
-# if __name__ == "__main__":
-#     test_create_property()
+def test_create_request(access_token):
+    url = f"{BASE_URL}/users/create_request"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "city": "Москва",
+        "district": "Центральный",
+        "deal_format": "хочу купить",
+        "type": "квартира",
+        "subtype": "апартаменты",
+        "condition": "новая",
+        "construction_year": 2023,
+        "construction_quarter": 4,
+        "total_rooms": "2",
+        "total_area_min": 50,
+        "total_area_max": 70,
+        "budget_min": 10000000,
+        "budget_max": 15000000,
+        "currency": "RUB",
+        "purchase_purpose": "для проживания",
+        "urgency": "срочно",
+        "purchase_method": "в ипотеку",
+        "mortgage_approved": True,
+        "wishes": "хорошая инфраструктура"
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    if response.status_code == 200:
+        print("Request creation successful:", response.json())
+    else:
+        print("Request creation failed:", response.status_code, response.text)
+
+def test_get_my_requests(access_token):
+    url = f"{BASE_URL}/users/my_requests"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        print("Get my requests successful:", response.json())
+    else:
+        print("Get my requests failed:", response.status_code, response.text)
+
 
 def test_get_prop(token):
     url = f"{BASE_URL}/properties/my_properties/"
@@ -208,8 +245,9 @@ if __name__ == "__main__":
     test_activate_user(code)
     token = test_login_user(code)
     if token:
-        test_create_property(token)
-        test_get_prop(token)
+
+        test_create_request(token)
+        test_get_my_requests(token)
         # test_update_user(token)
         # test_get_user_info(token)
         # test_reset_password()

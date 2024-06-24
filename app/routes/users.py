@@ -145,3 +145,25 @@ async def delete_user(data: schemas.UserBase, db = Depends(deps.get_db)):
 async def get_users(skip: int = 0, limit: int = 10, db = Depends(deps.get_db)):
     users = await db.fetch("SELECT * FROM users OFFSET $1 LIMIT $2", skip, limit)
     return users
+
+
+
+@router.post("/create_request")
+async def create_request(
+    request_data: schemas.RequestCreate,
+    current_user: schemas.User = Depends(deps.get_current_user),
+    db=Depends(deps.get_db)
+):
+    if current_user['role'] != 'user':
+        raise HTTPException(status_code=403, detail="Only users can create requests")
+    
+    new_request = await crud.create_request(db, request_data, current_user['id'])
+    return new_request
+
+@router.get("/my_requests")
+async def get_my_requests(current_user: schemas.User = Depends(deps.get_current_user), db=Depends(deps.get_db)):
+    if current_user['role'] != 'user':
+        raise HTTPException(status_code=403, detail="Only users can view their requests")
+    
+    requests = await crud.get_requests_by_user(db, current_user['id'])
+    return requests

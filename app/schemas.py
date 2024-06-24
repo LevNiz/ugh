@@ -135,3 +135,25 @@ class Property(PropertyBase):
 
     class Config:
         orm_mode = True
+
+
+class RequestCreate(BaseModel):
+    city: str
+    district: Optional[str]
+    deal_format: str
+    type: str
+    subtype: Optional[str]
+    condition: Optional[str]
+    construction_year: Optional[int]
+    construction_quarter: Optional[int]
+    total_rooms: Optional[str]
+    total_area_min: Optional[float]
+    total_area_max: Optional[float]
+    budget_min: Optional[float]
+    budget_max: Optional[float]
+    currency: Optional[str]
+    purchase_purpose: Optional[str]
+    urgency: Optional[str]
+    purchase_method: Optional[str]
+    mortgage_approved: Optional[bool]
+    wishes: Optional[str]        

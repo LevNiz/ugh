@@ -104,4 +104,31 @@ class Database:
                 );                                                              
             ''')
 
+            await conn.execute('''
+                CREATE TABLE IF NOT EXISTS requests (
+                    id SERIAL PRIMARY KEY,
+                    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+                    city VARCHAR(100) NOT NULL,
+                    district VARCHAR(100),
+                    deal_format VARCHAR(50) NOT NULL,
+                    type VARCHAR(50) NOT NULL,
+                    subtype VARCHAR(50),
+                    condition VARCHAR(50),
+                    construction_year INT,
+                    construction_quarter INT,
+                    total_rooms VARCHAR(50),
+                    total_area_min FLOAT,
+                    total_area_max FLOAT,
+                    budget_min FLOAT,
+                    budget_max FLOAT,
+                    currency VARCHAR(10),
+                    purchase_purpose VARCHAR(100),
+                    urgency VARCHAR(50),
+                    purchase_method VARCHAR(50),
+                    mortgage_approved BOOLEAN,
+                    wishes TEXT
+                );
+                               
+            ''')
+
 database = Database()

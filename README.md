@@ -325,3 +325,77 @@ URL: /properties/my_properties/
 
 curl -X GET "{BASE_URL}/properties/my_properties/" \
 -H "Authorization: Bearer your_access_token_here"
+
+
+11. Создание заявки на поиск объектов недвижимости
+
+URL: `users/create_request`
+
+Метод: `POST`
+
+**Описание: Создает новую заявку на поиск объектов недвижимости. Доступно только для пользователей с ролью `user`.
+
+Параметры:
+- `city` (string): Город.
+- `district` (string, optional): Район.
+- `deal_format` (string): Формат сделки (например, "хочу купить", "хочу арендовать").
+- `type` (string): Тип недвижимости (например, "квартира", "дом").
+- `subtype` (string, optional): Подтип недвижимости (например, "квартира", "апартаменты").
+- `condition` (string, optional): Состояние недвижимости (например, "новая", "вторичная").
+- `construction_year` (int, optional): Год постройки.
+- `construction_quarter` (int, optional): Квартал постройки.
+- `total_rooms` (string, optional): Всего комнат (например, "студия", "1", "2").
+- `total_area_min` (float, optional): Минимальная общая площадь.
+- `total_area_max` (float, optional): Максимальная общая площадь.
+- `budget_min` (float, optional): Минимальный бюджет.
+- `budget_max` (float, optional): Максимальный бюджет.
+- `currency` (string, optional): Валюта бюджета (например, "рубли", "евро").
+- `purchase_purpose` (string, optional): Цель покупки (например, "для проживания", "сдавать в аренду").
+- `urgency` (string, optional): Срочность покупки (например, "срочно", "сразу").
+- `purchase_method` (string, optional): Способ покупки (например, "в ипотеку", "в рассрочку").
+- `mortgage_approved` (bool, optional): Одобрена ли ипотека.
+- `wishes` (string, optional): Пожелания.
+
+Пример запроса:
+
+POST "{BASE_URL}/users/create_request" \
+-H "Authorization: Bearer your_access_token_here" \
+-H "Content-Type: application/json" \
+-d '{
+    "city": "Москва",
+    "district": "Центральный",
+    "deal_format": "хочу купить",
+    "type": "квартира",
+    "subtype": "апартаменты",
+    "condition": "новая",
+    "construction_year": 2023,
+    "construction_quarter": 4,
+    "total_rooms": "2",
+    "total_area_min": 50,
+    "total_area_max": 70,
+    "budget_min": 10000000,
+    "budget_max": 15000000,
+    "currency": "рубли",
+    "purchase_purpose": "для проживания",
+    "urgency": "срочно",
+    "purchase_method": "в ипотеку",
+    "mortgage_approved": true,
+    "wishes": "хорошая инфраструктура"
+}'
+
+
+12. Получение списка заявок на поиск объектов недвижимости, созданных текущим пользователем
+URL: /my_requests
+
+Метод: GET
+
+Описание: Возвращает список заявок на поиск объектов недвижимости, созданных текущим авторизованным пользователем. Доступно только для пользователей с ролью user.
+
+Параметры:
+
+Не требуется
+
+Пример запроса:
+
+GET "{BASE_URL}/users/my_requests" \
+-H "Authorization: Bearer your_access_token_here"
