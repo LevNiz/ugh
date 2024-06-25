@@ -15,7 +15,7 @@ async def create_chat(
     print("new chat:", new_chat)
     return new_chat
 
-@router.get("/my_chats", response_model=List[schemas.Chat])
+@router.get("/my_chats")
 async def get_my_chats(current_user: schemas.User = Depends(deps.get_current_user), db=Depends(deps.get_db)):
     chats = await crud.get_chats_by_user(db, current_user['id'])
     return chats
