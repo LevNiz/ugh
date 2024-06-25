@@ -31,6 +31,14 @@ async def update_user(db, user_id: int, user_update: schemas.UserUpdate):
     updated_user = await db.fetchrow(query, *values)
     return updated_user
 
+# async def update_user(db, user_id: int, user_update: schemas.UserUpdate):
+#     set_clause = ", ".join([f"{key} = ${idx}" for idx, key in enumerate(user_update.dict().keys(), start=2)])
+#     query = f"UPDATE users SET {set_clause}, updated = $1 WHERE id = $2 RETURNING *"
+#     values = [user_update.dict().get(key) for key in user_update.dict().keys()]
+#     values.insert(0, int(time.time()))  # Add updated timestamp
+#     updated_user = await db.fetchrow(query, *values, user_id)
+#     return updated_user
+
 
 async def create_property(db, property: schemas.PropertyCreate, realtor_id: int):
     query = """
@@ -74,3 +82,30 @@ async def create_request(db, request_data: schemas.RequestCreate, user_id: int):
 async def get_requests_by_user(db, user_id: int):
     query = "SELECT * FROM requests WHERE user_id = $1"
     return await db.fetch(query, user_id)
+
+#chat and messages
+async def create_chat(db, chat_data: schemas.ChatCreate):
+    query = """
+    INSERT INTO chats (buyer_id, seller_id, property_id) VALUES ($1, $2, $3) RETURNING *
+    """
+    values = (chat_data.buyer_id, chat_data.seller_id, chat_data.property_id)
+    return await db.fetchrow(query, *values)
+
+async def get_chats_by_user(db, user_id: int):
+    query = """
+    SELECT * FROM chats WHERE buyer_id = $1 OR seller_id = $1
+    """
+    return await db.fetch(query, user_id)
+
+async def create_message(db, message_data: schemas.MessageCreate):
+    query = """
+    INSERT INTO messages (chat_id, sender_id, content) VALUES ($1, $2, $3) RETURNING *
+    """
+    values = (message_data.chat_id, message_data.sender_id, message_data.content)
+    return await db.fetchrow(query, *values)
+
+async def get_messages_by_chat(db, chat_id: int):
+    query = """
+    SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at
+    """
+    return await db.fetch(query, chat_id)

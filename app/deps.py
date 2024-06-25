@@ -10,7 +10,7 @@ from app.config import settings
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-async def get_db():
+async def get_db():  
     conn = await database.pool.acquire()
     try:
         yield conn
@@ -70,7 +70,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db = Depends(get
         phone: str = payload.get("sub")
         if phone is None:
             raise credentials_exception
-    except JWTError:
+    except JWTError as e:
+        print(f"JWTError: {e}")
         raise credentials_exception
     user = await crud.get_user_by_phone(db, phone=phone)
     if user is None:

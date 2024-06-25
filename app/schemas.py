@@ -14,26 +14,29 @@ class UserCreate(UserBase):
     role: str
 
 class UserUpdate(BaseModel):
-    first_name: str = None
-    middle_name: str = None
-    last_name: str = None
-    sex: str = None
-    city: str = None
-    phone: str = None
-    email: str = None
-    user_type: str = None
-    whatsapp: str = None
-    telegram: str = None
-    viber: str = None
-    zoom: str = None
-    prop_city: str = None
-    prop_offer: str = None
-    prop_type: str = None
-    prop_state: str = None
-    avatar: str = None
-    licenses: str = None
-    video: str = None
-    about: str = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    middle_name: Optional[str] = None
+    sex: Optional[str] = None
+    city: Optional[str] = None
+    email: Optional[str] = None
+    user_type: Optional[str] = None
+    whatsapp: Optional[str] = None
+    telegram: Optional[str] = None
+    viber: Optional[str] = None
+    zoom: Optional[str] = None
+    prop_city: Optional[str] = None
+    prop_offer: Optional[str] = None
+    prop_type: Optional[str] = None
+    prop_state: Optional[str] = None
+    about: Optional[str] = None
+    avatar: Optional[str] = None
+    licenses: Optional[str] = None
+    notifications_all_messages: Optional[bool] = None
+    notifications_new_matches: Optional[bool] = None
+    notifications_responses: Optional[bool] = None
+    notifications_contacts: Optional[bool] = None
+    notifications_news: Optional[bool] = None
 
 # class User(UserBase):
 #     id: int
@@ -66,6 +69,14 @@ class User(BaseModel):
     activation_code: Optional[str]
     role: Optional[str]
     updated: int
+    notifications_all_messages: Optional[bool]
+    notifications_new_matches: Optional[bool]
+    notifications_responses: Optional[bool]
+    notifications_contacts: Optional[bool]
+    notifications_news: Optional[bool]
+
+    class Config:
+        orm_mode = True
 
 class UserActivate(BaseModel):
     phone: str
@@ -157,3 +168,35 @@ class RequestCreate(BaseModel):
     purchase_method: Optional[str]
     mortgage_approved: Optional[bool]
     wishes: Optional[str]        
+
+
+
+class ChatCreate(BaseModel):
+    buyer_id: int
+    seller_id: int
+    property_id: int
+
+class Chat(BaseModel):
+    id: int
+    buyer_id: int
+    seller_id: int
+    property_id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class MessageCreate(BaseModel):
+    chat_id: int
+    sender_id: int
+    content: str
+
+class Message(BaseModel):
+    id: int
+    chat_id: int
+    sender_id: int
+    content: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True    

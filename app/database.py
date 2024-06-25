@@ -18,36 +18,44 @@ class Database:
         async with self.pool.acquire() as conn:
             await conn.execute("DROP TABLE IF EXISTS users CASCADE")
             await conn.execute("DROP TABLE IF EXISTS properties CASCADE")
+            await conn.execute("DROP TABLE IF EXISTS chats CASCADE")
+            await conn.execute("DROP TABLE IF EXISTS messages CASCADE")
 
     async def init_db(self):
         async with self.pool.acquire() as conn:
             await conn.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                first_name VARCHAR(100),
-                last_name VARCHAR(100),
-                middle_name VARCHAR(100),
-                sex VARCHAR(1),
-                city VARCHAR(100),
-                phone VARCHAR(15) UNIQUE,
-                email VARCHAR(100) UNIQUE,
-                user_type VARCHAR(100),
-                whatsapp VARCHAR(50),
-                telegram VARCHAR(50),
-                viber VARCHAR(50),
-                zoom VARCHAR(50),
-                prop_city VARCHAR(100),
-                prop_offer VARCHAR(100),
-                prop_type VARCHAR(100),
-                prop_state VARCHAR(100),
-                avatar VARCHAR(100) DEFAULT 'noUserImage.svg',
-                licenses VARCHAR(100) DEFAULT 'noLicenseImage.svg',
-                video VARCHAR(100) DEFAULT 'noVideo.svg',
-                about VARCHAR(500),
-                activation_code VARCHAR(10),
-                role VARCHAR(15),
-                updated BIGINT
-            )''')
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    first_name VARCHAR(100),
+                    last_name VARCHAR(100),
+                    middle_name VARCHAR(100),
+                    sex VARCHAR(1),
+                    city VARCHAR(100),
+                    phone VARCHAR(15) UNIQUE,
+                    email VARCHAR(100) UNIQUE,
+                    user_type VARCHAR(100),
+                    whatsapp VARCHAR(50),
+                    telegram VARCHAR(50),
+                    viber VARCHAR(50),
+                    zoom VARCHAR(50),
+                    prop_city VARCHAR(100),
+                    prop_offer VARCHAR(100),
+                    prop_type VARCHAR(100),
+                    prop_state VARCHAR(100),
+                    avatar VARCHAR(100) DEFAULT 'noUserImage.svg',
+                    licenses VARCHAR(100) DEFAULT 'noLicenseImage.svg',
+                    video VARCHAR(100) DEFAULT 'noVideo.svg',
+                    about VARCHAR(500),
+                    activation_code VARCHAR(10),
+                    role VARCHAR(15),
+                    updated BIGINT,
+                    notifications_all_messages BOOLEAN DEFAULT true,
+                    notifications_new_matches BOOLEAN DEFAULT true,
+                    notifications_responses BOOLEAN DEFAULT true,
+                    notifications_contacts BOOLEAN DEFAULT true,
+                    notifications_news BOOLEAN DEFAULT false
+                );
+            ''')
 
             await conn.execute('''
                 CREATE TABLE IF NOT EXISTS properties (
@@ -129,6 +137,28 @@ class Database:
                     wishes TEXT
                 );
                                
+            ''')
+
+
+            await conn.execute('''
+                CREATE TABLE IF NOT EXISTS chats (
+                    id SERIAL PRIMARY KEY,
+                    buyer_id INT REFERENCES users(id) ON DELETE CASCADE,
+                    seller_id INT REFERENCES users(id) ON DELETE CASCADE,
+                    property_id INT REFERENCES properties(id) ON DELETE CASCADE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );            
+            ''')
+
+
+            await conn.execute('''
+                CREATE TABLE IF NOT EXISTS messages (
+                    id SERIAL PRIMARY KEY,
+                    chat_id INT REFERENCES chats(id) ON DELETE CASCADE,
+                    sender_id INT REFERENCES users(id) ON DELETE CASCADE,
+                    content TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
             ''')
 
 database = Database()

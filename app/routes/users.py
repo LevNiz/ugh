@@ -53,7 +53,11 @@ async def login_for_access_token(data: schemas.TokenRequest, db = Depends(deps.g
 
 @router.get("/me/")
 async def read_users_me(current_user: schemas.User = Depends(deps.get_current_user)):
+    print("in me")
+    print(current_user)
     return current_user
+
+
 
 @router.put("/update/")
 async def update_user(
@@ -65,7 +69,7 @@ async def update_user(
     city: str = Form(None),
     email: str = Form(None),
     user_type: str = Form(None),
-    whatsrouter: str = Form(None),
+    whatsapp: str = Form(None),
     telegram: str = Form(None),
     viber: str = Form(None),
     zoom: str = Form(None),
@@ -76,6 +80,11 @@ async def update_user(
     about: str = Form(None),
     avatar: UploadFile = File(None),
     licenses: UploadFile = File(None),
+    notifications_all_messages: bool = Form(None),
+    notifications_new_matches: bool = Form(None),
+    notifications_responses: bool = Form(None),
+    notifications_contacts: bool = Form(None),
+    notifications_news: bool = Form(None),
     db = Depends(deps.get_db)
 ):
     db_user = await crud.get_user_by_phone(db, phone=phone)
@@ -90,7 +99,7 @@ async def update_user(
         "city": city,
         "email": email,
         "user_type": user_type,
-        "whatsrouter": whatsrouter,
+        "whatsapp": whatsapp,
         "telegram": telegram,
         "viber": viber,
         "zoom": zoom,
@@ -99,13 +108,18 @@ async def update_user(
         "prop_type": prop_type,
         "prop_state": prop_state,
         "about": about,
+        "notifications_all_messages": notifications_all_messages,
+        "notifications_new_matches": notifications_new_matches,
+        "notifications_responses": notifications_responses,
+        "notifications_contacts": notifications_contacts,
+        "notifications_news": notifications_news,
     }
 
     # Remove keys with None values
     user_update_data = {k: v for k, v in user_update_data.items() if v is not None}
 
     user_update = schemas.UserUpdate(**user_update_data)
-    print("user udpate", user_update)
+
     if avatar:
         avatar_location = os.path.join(UPLOAD_DIR, avatar.filename)
         with open(avatar_location, "wb") as buffer:
@@ -118,9 +132,76 @@ async def update_user(
             shutil.copyfileobj(licenses.file, buffer)
         user_update.licenses = license_location  
 
-    print(user_update, type(user_update))
     updated_user = await crud.update_user(db, db_user['id'], user_update)
     return {"message": "User updated successfully", "user": dict(updated_user)}
+
+
+# @router.put("/update/")
+# async def update_user(
+#     phone: str = Form(...),
+#     first_name: str = Form(None),
+#     last_name: str = Form(None),
+#     middle_name: str = Form(None),
+#     sex: str = Form(None),
+#     city: str = Form(None),
+#     email: str = Form(None),
+#     user_type: str = Form(None),
+#     whatsrouter: str = Form(None),
+#     telegram: str = Form(None),
+#     viber: str = Form(None),
+#     zoom: str = Form(None),
+#     prop_city: str = Form(None),
+#     prop_offer: str = Form(None),
+#     prop_type: str = Form(None),
+#     prop_state: str = Form(None),
+#     about: str = Form(None),
+#     avatar: UploadFile = File(None),
+#     licenses: UploadFile = File(None),
+#     db = Depends(deps.get_db)
+# ):
+#     db_user = await crud.get_user_by_phone(db, phone=phone)
+#     if not db_user:
+#         raise HTTPException(status_code=400, detail="User not found")
+
+#     user_update_data = {
+#         "first_name": first_name,
+#         "last_name": last_name,
+#         "middle_name": middle_name,
+#         "sex": sex,
+#         "city": city,
+#         "email": email,
+#         "user_type": user_type,
+#         "whatsrouter": whatsrouter,
+#         "telegram": telegram,
+#         "viber": viber,
+#         "zoom": zoom,
+#         "prop_city": prop_city,
+#         "prop_offer": prop_offer,
+#         "prop_type": prop_type,
+#         "prop_state": prop_state,
+#         "about": about,
+#     }
+
+#     # Remove keys with None values
+#     user_update_data = {k: v for k, v in user_update_data.items() if v is not None}
+
+#     user_update = schemas.UserUpdate(**user_update_data)
+#     print("user udpate", user_update)
+#     if avatar:
+#         avatar_location = os.path.join(UPLOAD_DIR, avatar.filename)
+#         with open(avatar_location, "wb") as buffer:
+#             shutil.copyfileobj(avatar.file, buffer)
+#         user_update.avatar = avatar_location
+    
+#     if licenses:
+#         license_location = os.path.join(UPLOAD_DIR, licenses.filename)
+#         with open(license_location, "wb") as buffer:
+#             shutil.copyfileobj(licenses.file, buffer)
+#         user_update.licenses = license_location  
+
+#     print(user_update, type(user_update))
+#     updated_user = await crud.update_user(db, db_user['id'], user_update)
+#     return {"message": "User updated successfully", "user": dict(updated_user)}
 
 
 @router.post("/reset/")

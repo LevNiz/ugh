@@ -109,8 +109,10 @@ URL: users/update/
 Параметры:
 
 phone (string): Номер телефона пользователя (обязательный).
-Другие параметры (опциональные): first_name, last_name, middle_name, sex, city, email, user_type, whatsapp, telegram, viber, zoom, prop_city, prop_offer, prop_type, prop_state, about.
+Другие параметры (опциональные): first_name, last_name, middle_name, sex, city, email, user_type, whatsapp, telegram, viber, zoom, prop_city, prop_offer, prop_type, prop_state, about, notifications_all_messages, notifications_new_matches, notifications_responses, notifications_contacts, notifications_news
+
 Файлы: avatar (файл изображения), licenses (файл изображения).
+
 Пример запроса:
 PUT /update/
 Content-Type: multipart/form-data
@@ -399,3 +401,70 @@ URL: /my_requests
 
 GET "{BASE_URL}/users/my_requests" \
 -H "Authorization: Bearer your_access_token_here"
+
+
+13. Создание чата
+
+URL: chat/create_chat
+
+Метод: POST
+
+Описание: Создает новый чат между покупателем и продавцом.
+
+Параметры:
+- buyer_id (int): ID покупателя.
+- seller_id (int): ID продавца.
+- property_id (int): ID недвижимости.
+
+Пример запроса:
+POST "{BASE_URL}/chat/create_chat" \
+-H "Authorization: Bearer your_access_token_here" \
+-H "Content-Type: application/json" \
+-d '{
+    "buyer_id": 1,
+    "seller_id": 2,
+    "property_id": 3
+}'
+
+
+14. Получение своих чатов
+URL: chat/my_chats
+
+Метод: GET
+
+Описание: Возвращает все чаты текущего пользователя.
+
+Заголовки запроса:
+
+Authorization: Bearer token.
+
+Пример запроса:
+GET "{BASE_URL}/chat/my_chats" \
+-H "Authorization: Bearer your_access_token_here"
+
+
+15. Получение сообщений чата
+URL: chat/chat_messages/{chat_id}
+
+Метод: GET
+
+Описание: Возвращает все сообщения для конкретного чата.
+
+Заголовки запроса:
+
+Authorization: Bearer token.
+
+Параметры:
+    - chat_id (int): ID чата.
+
+16. WebSocket для сообщений чата
+URL: chat/ws/{chat_id}
+
+Метод: WebSocket
+
+Описание: Устанавливает WebSocket соединение для обмена сообщениями в чате.
+
+Параметры:
+    - chat_id (int): ID чата.
+    - token : Bearer token
+ 

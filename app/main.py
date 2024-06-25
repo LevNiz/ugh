@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import database
-from app.routes import users, properties
+from app.routes import users, properties, chat
 
 app = FastAPI()
 
@@ -15,6 +15,7 @@ app.add_middleware(
 
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(properties.router, prefix="/properties", tags=["properties"])
+app.include_router(chat.router, prefix="/chat", tags=["chat"])
 
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

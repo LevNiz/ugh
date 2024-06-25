@@ -1,9 +1,14 @@
 import requests
+import json
+import websocket
+import _thread
+import time
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 BASE_URL = "http://127.0.0.1:8000"
 
 phone = '+7996789610'
+phone_r = '7996789611'
 
 def test_register_user():
     url = f"{BASE_URL}/users/register/"
@@ -19,6 +24,20 @@ def test_register_user():
     else:
         print("Registration failed:", response.status_code, response.text)
 
+def test_register_realtor():
+    url = f"{BASE_URL}/users/register/"
+    payload = {
+        "phone": f"{phone_r}",
+        "name": "Иван",
+        "role": "realtor"
+    }
+    response = requests.post(url, json=payload)
+    if response.status_code == 200:
+        print("Registration successful:", response.json())
+        return response.json()['code']
+    else:
+        print("Registration failed:", response.status_code, response.text)        
+
 def test_activate_user(code):
     url = f"{BASE_URL}/users/activate/"
     payload = {
@@ -31,7 +50,7 @@ def test_activate_user(code):
     else:
         print("Activation failed:", response.status_code, response.text)
 
-def test_login_user(code):
+def test_login_user(code, phone):
     url = f"{BASE_URL}/users/token"
     payload = {
         "phone": phone,
@@ -45,26 +64,95 @@ def test_login_user(code):
         print("Login failed:", response.status_code, response.text)
         return None
 
-def test_update_user(access_token):
-    url = f"{BASE_URL}/update/"
+def test_update_user1(access_token):
+    url = f"{BASE_URL}/users/update/"
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
+    # data = {
+    #     "phone": phone,
+    #     "first_name": "Иван",
+    #     "last_name": "Петров"
+    # }
+    # files = {
+    #     "avatar": ("test_avatar.jpg", open("test_avatar.jpg", "rb")),
+    #     "licenses": ("test_license.jpg", open("test_license.jpg", "rb"))
+    # }
+    # response = requests.put(url, headers=headers, data=data, files=files)
+    # if response.status_code == 200:
+    #     print("Update successful:", response.json())
+    # else:
+    #     print("Update failed:", response.status_code, response.text)
+
     data = {
         "phone": phone,
         "first_name": "Иван",
-        "last_name": "Петров"
+        "last_name": "Петров",
+        "middle_name": "Иванович",
+        "sex": "M",
+        "city": "Москва",
+        "email": "ivan.petrov@example.com",
+        "user_type": "user",
+        "whatsapp": "+79197777777",
+        "telegram": "@ivanpetrov",
+        "viber": "+79197777777",
+        "zoom": "ivan.petrov.zoom",
+        "prop_city": "Москва",
+        "prop_offer": "Продажа",
+        "prop_type": "Квартира",
+        "prop_state": "Новая",
+        "about": "Описание",
+        "notifications_all_messages": True,
+        "notifications_new_matches": True,
+        "notifications_responses": True,
+        "notifications_contacts": True,
+        "notifications_news": False
     }
     files = {
-        "avatar": ("test_avatar.jpg", open("test_avatar.jpg", "rb")),
-        "licenses": ("test_license.jpg", open("test_license.jpg", "rb"))
+        "avatar": ("avatar.jpg", open("test_avatar.jpg", "rb"), "image/jpeg"),
+        "licenses": ("licenses.jpg", open("test_license.jpg", "rb"), "image/jpeg")
     }
     response = requests.put(url, headers=headers, data=data, files=files)
+    
+    print(response.status_code, response.json())
     if response.status_code == 200:
         print("Update successful:", response.json())
     else:
         print("Update failed:", response.status_code, response.text)
 
+
+def test_update_user2(access_token):
+    url = f"{BASE_URL}/users/update/"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    # data = {
+    #     "phone": phone,
+    #     "first_name": "Иван",
+    #     "last_name": "Петров"
+    # }
+    # files = {
+    #     "avatar": ("test_avatar.jpg", open("test_avatar.jpg", "rb")),
+    #     "licenses": ("test_license.jpg", open("test_license.jpg", "rb"))
+    # }
+    # response = requests.put(url, headers=headers, data=data, files=files)
+    # if response.status_code == 200:
+    #     print("Update successful:", response.json())
+    # else:
+    #     print("Update failed:", response.status_code, response.text)
+
+    data = {
+        "phone": phone,
+        "notifications_news": True
+    }
+
+    response = requests.put(url, headers=headers, data=data)
+    
+    print(response.status_code, response.json())
+    if response.status_code == 200:
+        print("Update successful:", response.json())
+    else:
+        print("Update failed:", response.status_code, response.text)
 
 def test_reset_password():
     url = f"{BASE_URL}/reset/"
@@ -113,6 +201,7 @@ def test_get_user_info(access_token):
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
+        return response.json()
         print("Get user info successful:", response.json())
     else:
         print("Get user info failed:", response.status_code, response.text)
@@ -240,15 +329,74 @@ def test_get_prop(token):
     else:
         print("Get user info failed:", response.status_code, response.text)    
 
+
+def test_create_chat(token, buyer_id, seller_id):
+    url = f"{BASE_URL}/chat/create_chat"
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "buyer_id": buyer_id,
+        "seller_id": seller_id,
+        "property_id": 1
+    }
+    
+    response = requests.post(url, headers=headers, json=data)
+    
+    print("Status Code:", response.status_code)
+    print("Response JSON:", response.json())
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("Get user info failed:", response.status_code, response.text)   
+
+def on_message(ws, message):
+    print(f"Received message: {message}")
+
+def on_error(ws, error):
+    print(f"Error: {error}")
+
+def on_close(ws, close_status_code, close_msg):
+    print("### closed ###")
+
+def on_open(ws):
+    def run(*args):
+        for i in range(3):
+            time.sleep(1)
+            ws.send(f"Hello {i}")
+        time.sleep(1)
+        ws.close()
+    _thread.start_new_thread(run, ())
+
+def test_websocket_chat(chat_id, token):
+    ws = websocket.WebSocketApp(f"ws://localhost:8000/chat/ws/{chat_id}?token={token}",
+                                on_open=on_open,
+                                on_message=on_message,
+                                on_error=on_error,
+                                on_close=on_close)
+
+    ws.run_forever()
+
 if __name__ == "__main__":
     code = test_register_user()
     test_activate_user(code)
-    token = test_login_user(code)
-    if token:
+    token = test_login_user(code, phone)
+    user_id = test_get_user_info(token)['id']
 
-        test_create_request(token)
-        test_get_my_requests(token)
-        # test_update_user(token)
+    code = test_register_realtor()
+    test_activate_user(code)
+    token1 = test_login_user(code, phone_r)
+    realtor_id = test_get_user_info(token1)['id']
+    if token and token1:
+        test_create_property(token1)
+        chat = test_create_chat(token, user_id, realtor_id)
+        print("chat:", chat)
+        test_websocket_chat(chat['id'], token)
+        # test_create_request(token)
+        # test_get_my_requests(token)
+        # test_update_user1(token)
+        # print("---------------------------------------------")
+        # test_update_user2(token)
         # test_get_user_info(token)
         # test_reset_password()
         # test_get_users(token)
